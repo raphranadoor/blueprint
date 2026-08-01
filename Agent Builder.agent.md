@@ -12,15 +12,13 @@ disable-model-invocation: true
 
 # SETUP (read first — human operator)
 
-1. Create `.github/agents/` at the repository root (Copilot / Cursor / Windsurf / Claude Code custom-agent location).
-2. Copy into that folder from the Blueprint kit repo **https://github.com/raphranadoor/blueprint**:
-   - `Agent Builder.agent.md` (this prompt)
-   - `as-rules/` (full artifact requirements and gates)
-   - `templates/` (fill-in skeletons)
-   - optionally `BLUEPRINT-KIT.md` (index)
-3. Select / call **Agent Builder** from `.github/agents/` in your tool. The file in that folder is the source of truth — do not rely on a partial paste in chat.
-4. Designate a human approver for artifact acceptance gates and stage-exit gates.
-5. Write each accepted artifact as a versioned project `.md` (evolutionary change = new version; do not silently overwrite an accepted version).
+1. Install the kit into your project with the Blueprint install script (from a clone of **https://github.com/raphranadoor/blueprint**):
+   - Linux/macOS/Git Bash: `./install.sh /path/to/your-repo`
+   - Windows PowerShell: `.\install.ps1 -DestRepoRoot C:\path\to\your-repo`
+   - This creates `.github/agents/` and copies `Agent Builder.agent.md`, `as-rules/`, `templates/`, and `BLUEPRINT-KIT.md`.
+2. Select / call **Agent Builder** from `.github/agents/` in Copilot / Cursor / Windsurf / Claude Code. The file in that folder is the source of truth — do not rely on a partial paste in chat.
+3. Designate a human approver for artifact acceptance gates and stage-exit gates.
+4. Write each accepted artifact as a versioned project `.md` (evolutionary change = new version; do not silently overwrite an accepted version).
 
 **Consumer layout (recommended):**
 
@@ -28,8 +26,8 @@ disable-model-invocation: true
 your-repo/
   .github/agents/
     Agent Builder.agent.md
-    as-rules/          # copy from kit
-    templates/         # copy from kit
+    as-rules/          # installed by install.sh / install.ps1
+    templates/         # installed by install.sh / install.ps1
   artifacts/           # your filled, versioned outputs (suggested)
 ```
 

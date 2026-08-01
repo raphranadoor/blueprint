@@ -8,6 +8,7 @@ Copyable kit for building agentic systems with the **Agent Engineering Blueprint
 
 | Path | Role |
 |------|------|
+| `install.sh` / `install.ps1` | Installs the kit into a consumer repo’s `.github/agents/` |
 | `Agent Builder.agent.md` | Custom agent prompt (process + short artifact blurbs) |
 | `as-rules/` | Authoritative requirements per artifact (purpose, sections, gates, boundary, bridge) |
 | `templates/` | Fill-in skeletons completed from conversation answers |
@@ -16,14 +17,44 @@ Copyable kit for building agentic systems with the **Agent Engineering Blueprint
 
 ## Quick start (consumer repo)
 
-1. In your project, create `.github/agents/`.
-2. Copy from this repo into that folder:
-   - `Agent Builder.agent.md`
-   - `as-rules/`
-   - `templates/`
-   - optionally `BLUEPRINT-KIT.md`
-3. In GitHub Copilot, Cursor, Windsurf, or Claude Code, select **Agent Builder**.
-4. Discuss what to build. Approve each artifact gate before advancing.
+### 1. Install the kit
+
+From a clone of this repo, point the installer at your project root (defaults to the current directory):
+
+**Linux / macOS / Git Bash**
+
+```bash
+git clone https://github.com/raphranadoor/blueprint.git
+cd blueprint
+chmod +x install.sh
+./install.sh /path/to/your-repo
+```
+
+**Windows PowerShell**
+
+```powershell
+git clone https://github.com/raphranadoor/blueprint.git
+cd blueprint
+.\install.ps1 -DestRepoRoot C:\path\to\your-repo
+```
+
+One-liner when your shell is already inside the consumer repo:
+
+```bash
+git clone --depth 1 https://github.com/raphranadoor/blueprint.git /tmp/blueprint \
+  && /tmp/blueprint/install.sh .
+```
+
+```powershell
+git clone --depth 1 https://github.com/raphranadoor/blueprint.git $env:TEMP\blueprint
+& "$env:TEMP\blueprint\install.ps1" -DestRepoRoot (Get-Location)
+```
+
+The installer creates `.github/agents/` and copies `Agent Builder.agent.md`, `as-rules/`, `templates/`, and `BLUEPRINT-KIT.md`.
+
+### 2. Invoke Agent Builder
+
+In GitHub Copilot, Cursor, Windsurf, or Claude Code, select **Agent Builder**, discuss what to build, and approve each artifact gate before advancing.
 
 Recommended consumer layout:
 
@@ -54,4 +85,4 @@ python _generate_blueprint_kit.py
 
 ## License / use
 
-Intended for reuse: copy the kit into consumer repositories and run Agent Builder from `.github/agents/`.
+Intended for reuse: install the kit into consumer repositories and run Agent Builder from `.github/agents/`.
