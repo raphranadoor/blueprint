@@ -16,7 +16,6 @@ $DestAgents = Join-Path $DestRepoRoot ".github\agents"
 
 $need = @(
     "Agent Builder.agent.md",
-    "as-rules",
     "templates"
 )
 
@@ -35,7 +34,6 @@ $asRulesDest = Join-Path $DestAgents "as-rules"
 $templatesDest = Join-Path $DestAgents "templates"
 if (Test-Path -LiteralPath $asRulesDest) { Remove-Item -LiteralPath $asRulesDest -Recurse -Force }
 if (Test-Path -LiteralPath $templatesDest) { Remove-Item -LiteralPath $templatesDest -Recurse -Force }
-Copy-Item -LiteralPath (Join-Path $KitRoot "as-rules") -Destination $asRulesDest -Recurse -Force
 Copy-Item -LiteralPath (Join-Path $KitRoot "templates") -Destination $templatesDest -Recurse -Force
 
 $kitIndex = Join-Path $KitRoot "BLUEPRINT-KIT.md"

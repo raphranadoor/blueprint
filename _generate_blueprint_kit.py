@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""One-shot generator for as-rules/ and templates/ Blueprint kit. Run from this directory."""
+"""Generate merged Blueprint templates (Normative + Instance in one file per artifact)."""
 from pathlib import Path
+import shutil
 
 ROOT = Path(__file__).resolve().parent
-RULES = ROOT / "as-rules"
 TEMPLATES = ROOT / "templates"
 
 ARTIFACTS = [
@@ -12,27 +12,27 @@ ARTIFACTS = [
         "slug": "problem-definition",
         "name": "Problem Definition",
         "stage": "1 — Problem Definition",
-        "short": "Defines the problem, who is blocked, barrier usecases, and solution-neutral outcomes — without presupposing an agent or product.",
+        "short": "Defines the problem, who is blocked, barrier usecases, and desired outcomes",
         "purpose": "Define the problem as clearly as possible with full context. Include usecases where the problem blocks the user from moving forward.",
         "sections": [
             "Problem statement — clear definition with organizational or team context",
             "Barrier usecases — situations where the problem blocks progress",
             "Users — who feels the pain (primary and secondary where relevant)",
-            "Desired outcomes — solution-neutral end-states (outcome without solution)",
-            "Existing solutions gap — what exists and why it is not enough",
-            "Out of scope — what the problem is not part of",
+            "Desired outcomes — end-states",
+            "Existing solutions gap",
+            "Out of scope — explicit exclusions"
         ],
         "gate": [
-            "Problem stated clearly without presupposing an agent/system/product will be built?",
+            "Problem stated clearly?",
             "Users who feel the pain named?",
-            "Organizational/team context stated; problem plausibly solvable with available resources?",
-            "Desired outcomes are solution-neutral end-states, not methods/designs?",
-            "Problem-side out of scope stated explicitly?",
-            "Document avoids assuming an agent/system/feature set as the solution?",
+            "Organizational or team context stated?",
+            "Desired outcomes are end-states only?",
+            "Out of scope stated?",
+            "Solution approach left unspecified?"
         ],
-        "boundary": "Understand the problem without presupposing a solution.",
+        "boundary": "Problem space.",
         "bridge": "→ Product Requirements Document (PRD).",
-        "out": None,
+        "out": null
     },
     {
         "id": "1.2",
@@ -52,7 +52,7 @@ ARTIFACTS = [
             "Non-functional requirements (NFR)",
             "Assumptions and dependencies",
             "Success metrics — YES/NO questions with binary answers",
-            "Out-of-scope",
+            "Out-of-scope"
         ],
         "gate": [
             "Product description, requirements, and organizational commitment stated?",
@@ -62,11 +62,11 @@ ARTIFACTS = [
             "Success metrics are YES/NO with binary answers?",
             "Every product goal maps to ≥1 PD problem/outcome?",
             "Both FR and NFR stated?",
-            "Out-of-scope defined explicitly?",
+            "Out-of-scope defined explicitly?"
         ],
-        "boundary": "Product intent and requirements only — not engineering design.",
+        "boundary": "Product intent and requirements.",
         "bridge": "→ System Requirements Specification (SRS).",
-        "out": None,
+        "out": null
     },
     {
         "id": "1.3",
@@ -83,8 +83,8 @@ ARTIFACTS = [
             "System constraints",
             "Assumptions and dependencies",
             "Acceptance criteria (pass/fail against built system)",
-            "Scope and actors — thin: system boundary + actors as interfaces (PRD pointers, not personas)",
-            "Traceability — SRS item → PRD goal → Problem Definition",
+            "Scope and actors — thin: system boundary + actors as interfaces (PRD pointers)",
+            "Traceability — SRS item → PRD goal → Problem Definition"
         ],
         "gate": [
             "Translates PRD goals into clear, buildable technical requirements?",
@@ -93,18 +93,18 @@ ARTIFACTS = [
             "Functional requirements in testable engineering form?",
             "Non-functional requirements in testable engineering form?",
             "Constraints, assumptions, and acceptance criteria stated?",
-            "Every platform/integration category considered (required or N/A + justification)?",
+            "Every platform/integration category considered (required or N/A + justification)?"
         ],
         "boundary": "Engineering contract: what the system must satisfy so design/build can begin.",
         "bridge": "Stage 1 exit (when set consistent) → Stage 2 Domain Model.",
-        "out": None,
+        "out": null
     },
     {
         "id": "2.1",
         "slug": "domain-model",
         "name": "Domain Model",
         "stage": "2 — System Design",
-        "short": "Shared conceptual ontology: entities, attributes, relationships, state, invariants, and domain events — not implementation schema.",
+        "short": "Shared conceptual ontology: entities, attributes, relationships, state, invariants, and domain events",
         "purpose": "Shared conceptual ontology of the problem domain. Grounds state, invariants, and events for TLA+.",
         "sections": [
             "Domain overview",
@@ -113,21 +113,21 @@ ARTIFACTS = [
             "Relationships between entities",
             "System state",
             "Domain invariants",
-            "Domain events",
+            "Domain events"
         ],
         "gate": [
             "Shared conceptual ontology established?",
             "Core entities derived from SRS concepts?",
-            "Attributes as domain meaning (not storage fields)?",
+            "Attributes stated as domain meaning?",
             "Relationships defined?",
             "System state explicitly modeled?",
             "Domain invariants stated?",
-            "Domain events stated?",
+            "Domain events stated?"
         ],
-        "boundary": "Domain ontology — not implementation.",
+        "boundary": "Conceptual ontology.",
         "bridge": "→ Formal System Specification (TLA+) v1.",
         "out": "schemas, call catalogs, code, component diagrams, wire formats, TLA+ specs",
-        "optional": "Domain operations / legal state transitions",
+        "optional": "Domain operations / legal state transitions"
     },
     {
         "id": "2.2",
@@ -146,7 +146,7 @@ ARTIFACTS = [
             "System behavior specification (composed Spec)",
             "Model-checking configuration — tool, properties, finite bounds/assumptions",
             "Model-checking results — PASS evidence for this version under §8",
-            "Version and stage-scope record — Spec version id; stage scope; later stages extend this Spec",
+            "Version and stage-scope record — Spec version id; stage scope; later stages extend this Spec"
         ],
         "gate": [
             "TLA+ named and expanded (Temporal Logic of Actions) in usable form?",
@@ -157,12 +157,12 @@ ARTIFACTS = [
             "Properties to be checked stated?",
             "Verification approach stated?",
             "Contents §9 records PASS under §8 configuration?",
-            "Version record states stage scope and that later dynamics extend this Spec?",
+            "Version record states stage scope and that later dynamics extend this Spec?"
         ],
         "gate_hard": "FAIL ⇒ Gate NO. v1 PASS before Component Architecture. Stage 2+ exit needs Spec PASS for cumulative scope. EG acceptance needs Spec v2+ PASS for execution-layer scope.",
         "boundary": "Formal dynamics + PASS evidence; others reference Spec versions.",
         "bridge": "v1 PASS → Component Architecture; later PASS → stage-exit / EG acceptance.",
-        "out": "Tool Contracts detail, prompts, CA diagrams, EG topology, schemas/APIs/code",
+        "out": "Tool Contracts detail, prompts, CA diagrams, EG topology, schemas/APIs/code"
     },
     {
         "id": "2.3",
@@ -173,9 +173,9 @@ ARTIFACTS = [
         "purpose": "Concrete runtime structure from PRD+SRS, Domain Model, and accepted TLA+ property-set. Decide components, interfaces, stores/external services, and reasoning points.",
         "sections": [
             "Components — each cites PRD/SRS need(s), Domain Model ground(s), TLA+ property(ies)",
-            "Interfaces between components (structure-level; not Tool Contracts)",
+            "Interfaces between components (structure-level)",
             "Stores and external services",
-            "Reasoning points",
+            "Reasoning points"
         ],
         "gate": [
             "PRD and SRS used as paired inputs?",
@@ -184,12 +184,12 @@ ARTIFACTS = [
             "Components decided?",
             "Interfaces decided?",
             "Stores and external services decided?",
-            "Reasoning points decided?",
+            "Reasoning points decided?"
         ],
         "gate_hard": "no Spec PASS ⇒ C3 NO.",
-        "boundary": "Runtime piece arrangement and reasoning-point markers — not agent behavior.",
+        "boundary": "Runtime structure and reasoning-point markers.",
         "bridge": "Completes Stage 2 → Stage 3 Tool Contracts.",
-        "out": "agent roles, coordination protocols, Tool Contracts detail, prompts, schemas/code",
+        "out": "agent roles, coordination protocols, Tool Contracts detail, prompts, schemas/code"
     },
     {
         "id": "3.1",
@@ -207,7 +207,7 @@ ARTIFACTS = [
             "Access permissions",
             "Failure modes",
             "Invocation and binding policies",
-            "Observability and logging",
+            "Observability and logging"
         ],
         "gate": [
             "Accepted CA version named?",
@@ -216,11 +216,11 @@ ARTIFACTS = [
             "Sole inventory (no parallel registry)?",
             "Each entry named/specified (interface, I/O, permissions, failures, policies)?",
             "Call and attach vocabulary decided?",
-            "Each contract bound to CA pieces?",
+            "Each contract bound to CA pieces?"
         ],
-        "boundary": "Capability surface (call/attach), not ontology or prompts.",
+        "boundary": "Call and attach capability surface.",
         "bridge": "→ Memory and Data Model.",
-        "out": "CA structure diagrams, Domain Model ontology, ABS, TLA+ dynamics, prompts/code",
+        "out": "CA structure diagrams, Domain Model ontology, ABS, TLA+ dynamics, prompts/code"
     },
     {
         "id": "3.2",
@@ -233,23 +233,23 @@ ARTIFACTS = [
             "Memory architecture overview",
             "Data entities",
             "Data schemas",
-            "Engineering and run artifact store (not SRS deployable registry)",
+            "Engineering and run artifact store",
             "Memory access patterns",
             "Context management (Domain Model grounded; windowed/bounded; injected into runs)",
             "Persistence strategy",
             "Data integrity rules",
             "Data lifecycle management",
-            "Caching requirements (tiers; TTL; invalidation; must/must-not; TC-aligned) — or explicit no-cache + justification",
+            "Caching requirements (tiers; TTL; invalidation; allowed and disallowed; TC-aligned) — or explicit no-cache + justification"
         ],
         "gate": [
             "Accepted Tool Contracts version named?",
             "How data is held stated (entities, schemas, persistence including engineering/run artifact store)?",
             "How data is accessed stated (architecture, patterns, context with domain grounding)?",
-            "Caching requirements stated (or explicit no-cache + justification)?",
+            "Caching requirements stated (or explicit no-cache + justification)?"
         ],
-        "boundary": "Data plane for TC reads/writes; not control-flow topology.",
+        "boundary": "Data plane for Tool Contract reads and writes.",
         "bridge": "→ Execution Graph Specification.",
-        "out": "TC detail, Domain Model ontology, CA topology, EG control flow, ABS/prompts/code, TLA+ dynamics, SRS deployable registry",
+        "out": "TC detail, Domain Model ontology, CA topology, EG control flow, ABS/prompts/code, TLA+ dynamics, SRS deployable registry"
     },
     {
         "id": "3.3",
@@ -257,7 +257,7 @@ ARTIFACTS = [
         "name": "Execution Graph Specification",
         "stage": "3 — Architecture Specification",
         "short": "Pictorial runtime control graph (nodes/edges/routing) referencing Spec v2+ PASS; places stores/caches and multi-repo context.",
-        "purpose": "Pictorial runtime control graph from CA + Memory/Data Model. References Spec v2+ PASS for execution-layer properties (does not restate them).",
+        "purpose": "Pictorial runtime control graph from CA + Memory/Data Model. References Spec v2+ PASS for execution-layer properties.",
         "sections": [
             "Execution graph overview (named Spec version referenced)",
             "Graph nodes (CA; memory stores/caches; repo/project context; TC annotations)",
@@ -265,7 +265,7 @@ ARTIFACTS = [
             "Conditional routing (cache outcomes; repo/project selection)",
             "Execution state",
             "Execution termination conditions",
-            "Execution observability",
+            "Execution observability"
         ],
         "gate": [
             "Accepted CA named?",
@@ -275,11 +275,11 @@ ARTIFACTS = [
             "Edges reflect CA interfaces/relationships and routing?",
             "Memory stores/caches as interaction points; cache outcomes affect routing where applicable?",
             "Multi-repo/multi-project selection explicit in routing and execution state?",
-            "Termination and observability specified?",
+            "Termination and observability specified?"
         ],
-        "boundary": "Control-graph topology and routing — not agent prompts.",
+        "boundary": "Control-graph topology and routing.",
         "bridge": "→ Agent Architecture. Acceptance requires Spec PASS for execution-layer scope.",
-        "out": "parallel execution model; error handling/recovery (later); TC schema detail; agent roles; formal Spec dynamics (referenced)",
+        "out": "parallel execution model; error handling/recovery (later); TC schema detail; agent roles; formal Spec dynamics (referenced)"
     },
     {
         "id": "3.4",
@@ -302,18 +302,18 @@ ARTIFACTS = [
             "Execution graph (agent-facing)",
             "Failure handling strategy (structural paths)",
             "Risk-tiered HITL gates",
-            "Versioning and rollback for routing/context policy artifacts",
+            "Versioning and rollback for routing/context policy artifacts"
         ],
         "gate": [
             "Every CA reasoning point has an assigned agent role?",
             "Every role maps to a defined position on the agent-facing EG?",
             "Tool bindings per role limited to named Tool Contract entries?",
             "Risk-tiered HITL tiers cover every action class with repo-write, deploy, or external side effects?",
-            "Rollback for routing/context policy artifacts defined so in-flight state is not orphaned?",
+            "Rollback for routing/context policy artifacts defined so in-flight state is not orphaned?"
         ],
-        "boundary": "Does not write prompts — prompts belong in Agent Behavior Specification.",
+        "boundary": "Agent placement and coordination; prompts deferred to Agent Behavior Specification.",
         "bridge": "Completes Stage 3 → Stage 4 Agent Behavior Specification.",
-        "out": "exact per-task temperature/top_p; detailed handoff dialogue (Stage 4); TC schema detail; EG redraw; memory persistence detail; Spec dynamics (referenced)",
+        "out": "exact per-task temperature/top_p; detailed handoff dialogue (Stage 4); TC schema detail; EG redraw; memory persistence detail; Spec dynamics (referenced)"
     },
     {
         "id": "4.1",
@@ -332,19 +332,19 @@ ARTIFACTS = [
             "Reflection and self-correction",
             "Inference parameter defaults (within AA envelopes)",
             "Failure handling behavior",
-            "Stopping conditions (when to stop/escalate — not how handoff runs)",
-            "Output validation",
+            "Stopping conditions (when to stop or escalate)",
+            "Output validation"
         ],
         "gate": [
             "Every AA role has a system prompt and matching prompt-grounded policy layers?",
             "Inference defaults stay within AA temperature/top_p envelopes?",
             "Tool selection uses only Tool Contracts bound to that role?",
             "Pause/stop/escalate rules respect AA risk-tiered HITL tiers?",
-            "Output validation covers each role's declared outputs on the EG?",
+            "Output validation covers each role's declared outputs on the EG?"
         ],
         "boundary": "System prompts and prompt-grounded behavior; handoff mechanics → Escalation/HITL.",
         "bridge": "→ Escalation and Human-in-the-Loop Handoff Specification.",
-        "out": "escalation handoff mechanics; governance policies; TC schemas; EG topology; Spec dynamics (referenced)",
+        "out": "escalation handoff mechanics; governance policies; TC schemas; EG topology; Spec dynamics (referenced)"
     },
     {
         "id": "4.2",
@@ -359,18 +359,18 @@ ARTIFACTS = [
             "Human decision points and required responses",
             "Resume / continue rules after human input",
             "Timeouts and fallback if human does not respond",
-            "Escalation logging mechanisms (what/where/who/retention)",
+            "Escalation logging mechanisms (what/where/who/retention)"
         ],
         "gate": [
             "Every AA risk-tiered HITL gate has a defined handoff path?",
             "Every ABS stop/escalate rule maps to a handoff or resume path?",
             "Handoff payload and required human responses stated?",
             "Resume/continue rules and timeouts/fallback stated?",
-            "Escalation logging mechanisms stated?",
+            "Escalation logging mechanisms stated?"
         ],
         "boundary": "Operable handoff mechanics for human checkpoints.",
         "bridge": "→ Governance and Safety Policies.",
-        "out": "system prompts/full behavior policies; Policy-as-Code detail; TC schemas; system-wide Observability Plan",
+        "out": "system prompts/full behavior policies; Policy-as-Code detail; TC schemas; system-wide Observability Plan"
     },
     {
         "id": "4.3",
@@ -384,7 +384,7 @@ ARTIFACTS = [
             "Policy-as-Code Bridge (required)",
             "Enforcement points in lifecycle and runtime",
             "Audit, approval, and exception handling",
-            "Alignment with enterprise compliance constraints",
+            "Alignment with enterprise compliance constraints"
         ],
         "gate": [
             "Human-readable governance/safety statements stated?",
@@ -393,11 +393,11 @@ ARTIFACTS = [
             "Audit, approval, and exception paths stated?",
             "Policies encode Escalation/HITL protocol, decision points, resume/timeout, escalation audit?",
             "SRC-edit jurisdiction = hard six + git, plus conditional seventh (DA+Obs) for instrumentation/logging/observability tests?",
-            "Living EG enrichment restricted to new EG versions under change-control?",
+            "Living EG enrichment restricted to new EG versions under change-control?"
         ],
-        "boundary": "Enforceable policy and change-control jurisdiction — not implementation procedure detail.",
+        "boundary": "Enforceable policy and change-control jurisdiction.",
         "bridge": "Completes Stage 4 → Stage 5 Implementation Plan.",
-        "out": "Implementation Plan procedure detail; system prompts; EG redraw; TC schemas",
+        "out": "Implementation Plan procedure detail; system prompts; EG redraw; TC schemas"
     },
     {
         "id": "5.1",
@@ -415,15 +415,15 @@ ARTIFACTS = [
             "Configuration management",
             "Testing strategy",
             "Deployment strategy",
-            "Release strategy",
+            "Release strategy"
         ],
         "gate": [
             "Framework and platform integration paths stated?",
-            "Testing, deployment, and release strategies stated?",
+            "Testing, deployment, and release strategies stated?"
         ],
-        "boundary": "Roadmap bound to approved design — not evaluation case detail.",
+        "boundary": "Engineering roadmap under approved design.",
         "bridge": "→ Evaluation Plan and Failure Taxonomy.",
-        "out": "Evaluation Plan and Failure Taxonomy detail; Observability dashboards",
+        "out": "Evaluation Plan and Failure Taxonomy detail; Observability dashboards"
     },
     {
         "id": "5.2",
@@ -442,13 +442,13 @@ ARTIFACTS = [
             "Failure Taxonomy — severity levels",
             "Failure Taxonomy — detectability and signals",
             "Failure Taxonomy — example instances",
-            "Failure Taxonomy — mapping to remediation owners",
+            "Failure Taxonomy — mapping to remediation owners"
         ],
-        "gate": None,
+        "gate": null,
         "gate_note": "No separate YES/NO checklist. Accept when all required sections are complete, consistent with Implementation Plan sequencing, and the approver confirms.",
-        "boundary": "Evaluation judgment and failure classification — not simulation scripts or deploy topology.",
+        "boundary": "Evaluation judgment and failure classification.",
         "bridge": "→ Simulation Scenarios.",
-        "out": "Simulation Scenarios detail; Observability Plan dashboards",
+        "out": "Simulation Scenarios detail; Observability Plan dashboards"
     },
     {
         "id": "5.3",
@@ -462,13 +462,13 @@ ARTIFACTS = [
             "Mapping to Failure Taxonomy entries",
             "Setup and inputs",
             "Expected failure or recovery behavior",
-            "Pass criteria for simulation runs",
+            "Pass criteria for simulation runs"
         ],
-        "gate": None,
+        "gate": null,
         "gate_note": "No separate YES/NO checklist. Accept when sections are complete, scenarios exercise the case space/taxonomy, and the approver confirms.",
         "boundary": "Adverse/recovery scenarios before finalizing deployment architecture.",
         "bridge": "→ Deployment Architecture and Observability Plan.",
-        "out": "Deployment Architecture topology; Observability Plan dashboards",
+        "out": "Deployment Architecture topology; Observability Plan dashboards"
     },
     {
         "id": "5.4",
@@ -486,38 +486,37 @@ ARTIFACTS = [
             "Observability Plan — logs, traces, and metrics inventory",
             "Observability Plan — instrumentation points across agents, tools, and graphs",
             "Observability Plan — alerting and escalation to operators",
-            "Observability Plan — retention and audit access",
+            "Observability Plan — retention and audit access"
         ],
-        "gate": None,
+        "gate": null,
         "gate_note": "No separate YES/NO checklist. Accept when sections are complete, support proven simulation paths, and the approver confirms. Completing this artifact completes the Blueprint protocol when Stage 5's required set is consistent.",
         "boundary": "Runtime topology + observability controls (including conditional EG/SRC enrichment for instrumentation).",
         "bridge": "Blueprint protocol complete (Stage 5 exit on set consistency).",
-        "out": None,
-    },
+        "out": null
+    }
 ]
 
 
-def rule_md(a: dict) -> str:
+def template_md(a: dict) -> str:
     lines = [
-        f"# Rule: {a['id']} {a['name']}",
+        f"# {a['name']}",
         "",
-        f"**Stage:** {a['stage']}",
+        f"**Id:** `{a['id']}` · **Stage:** {a['stage']} · **Version:** `v0.1-DRAFT`",
         "",
-        "## Slots",
-        "Purpose · Contents · Gate · Boundary · Bridge",
+        "## Normative",
         "",
-        "## Purpose",
+        "### Purpose",
         a["purpose"],
         "",
-        "## Required sections",
+        "### Required sections",
     ]
     for i, s in enumerate(a["sections"], 1):
         lines.append(f"{i}. {s}")
     if a.get("optional"):
         lines += ["", f"**Optional:** {a['optional']}"]
     if a.get("out"):
-        lines += ["", f"**Out (do not include):** {a['out']}"]
-    lines += ["", "## Artifact acceptance gate"]
+        lines += ["", f"**Excluded:** {a['out']}"]
+    lines += ["", "### Acceptance gate"]
     if a.get("gate"):
         lines.append("All answers must be YES to approve:")
         for i, g in enumerate(a["gate"], 1):
@@ -528,44 +527,36 @@ def rule_md(a: dict) -> str:
         lines.append(a.get("gate_note", "Approver confirms completeness."))
     lines += [
         "",
-        "## Boundary",
+        "### Boundary",
         a["boundary"],
         "",
-        "## Bridge",
+        "### Bridge",
         a["bridge"],
         "",
-    ]
-    return "\n".join(lines)
-
-
-def template_md(a: dict) -> str:
-    lines = [
-        f"# {a['name']}",
+        "## Instance",
         "",
-        f"> Artifact id: `{a['id']}` · Stage: {a['stage']} · Version: `v0.1-DRAFT`",
-        f"> Fill from conversation answers. Do not invent unendorsed requirements. Mark gaps `[TBD — needs user input]`.",
-        f"> Apply rule file: `as-rules/{a['id']}-{a['slug']}.md`",
+        "Mark gaps `[TBD]`. Fill from confirmed conversation answers only.",
         "",
-        "## Purpose (project-specific)",
+        "### Purpose (project-specific)",
         "",
-        "_Restate why this artifact exists for this project._",
+        "_…_",
         "",
-        "## Contents",
+        "### Contents",
         "",
     ]
     for s in a["sections"]:
         heading = s.split(" — ")[0].split(" (")[0]
-        lines += [f"### {heading}", "", f"<!-- {s} -->", "", "_…_", "",]
+        lines += [f"#### {heading}", "", f"<!-- {s} -->", "", "_…_", ""]
     if a.get("optional"):
-        lines += ["### Optional", "", f"<!-- {a['optional']} -->", "", "_…_", ""]
+        lines += ["#### Optional", "", f"<!-- {a['optional']} -->", "", "_…_", ""]
     lines += [
-        "## Upstream inputs (accepted versions)",
+        "### Upstream inputs (accepted versions)",
         "",
         "| Artifact | Version |",
         "|---|---|",
         "| _name_ | _id_ |",
         "",
-        "## Gate checklist",
+        "### Gate checklist",
         "",
     ]
     if a.get("gate"):
@@ -575,15 +566,7 @@ def template_md(a: dict) -> str:
         lines.append(f"- [ ] Approver confirm: {a.get('gate_note', 'complete and consistent')}")
     lines += [
         "",
-        "## Boundary note",
-        "",
-        a["boundary"],
-        "",
-        "## Bridge / next",
-        "",
-        a["bridge"],
-        "",
-        "## Approval",
+        "### Approval",
         "",
         "- Status: `DRAFT` | `ACCEPTED` | `REJECTED`",
         "- Approver:",
@@ -598,17 +581,17 @@ def index_md() -> str:
     lines = [
         "# Blueprint kit index",
         "",
-        "Copy `as-rules/` and `templates/` into a consumer repo (typically beside `.github/agents/`).",
-        "Agent Builder loads the rule for the current artifact, then fills the matching template from conversation answers.",
+        "**Source repo:** https://github.com/raphranadoor/blueprint",
         "",
-        "| Id | Artifact | Rule | Template |",
-        "|---|---|---|---|",
+        "Each file under `templates/` embeds Normative requirements and an Instance block to fill.",
+        "Copy `Agent Builder.agent.md` and `templates/` into a consumer repo under `.github/agents/`.",
+        "",
+        "| Id | Artifact | Template |",
+        "|---|---|---|",
     ]
     for a in ARTIFACTS:
         base = f"{a['id']}-{a['slug']}.md"
-        lines.append(
-            f"| {a['id']} | {a['name']} | [`as-rules/{base}`](as-rules/{base}) | [`templates/{base}`](templates/{base}) |"
-        )
+        lines.append(f"| {a['id']} | {a['name']} | [`templates/{base}`](templates/{base}) |")
     lines += ["", "## Short descriptions", ""]
     for a in ARTIFACTS:
         lines.append(f"- **{a['id']} {a['name']}** — {a['short']}")
@@ -617,14 +600,19 @@ def index_md() -> str:
 
 
 def main() -> None:
-    RULES.mkdir(exist_ok=True)
-    TEMPLATES.mkdir(exist_ok=True)
+    if TEMPLATES.exists():
+        for p in TEMPLATES.glob("*.md"):
+            p.unlink()
+    else:
+        TEMPLATES.mkdir(parents=True)
+    rules = ROOT / "as-rules"
+    if rules.exists():
+        shutil.rmtree(rules)
     for a in ARTIFACTS:
         base = f"{a['id']}-{a['slug']}.md"
-        (RULES / base).write_text(rule_md(a), encoding="utf-8")
         (TEMPLATES / base).write_text(template_md(a), encoding="utf-8")
     (ROOT / "BLUEPRINT-KIT.md").write_text(index_md(), encoding="utf-8")
-    print(f"Wrote {len(ARTIFACTS)} rules, {len(ARTIFACTS)} templates, BLUEPRINT-KIT.md")
+    print(f"Wrote {len(ARTIFACTS)} merged templates")
 
 
 if __name__ == "__main__":

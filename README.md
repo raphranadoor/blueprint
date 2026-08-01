@@ -10,10 +10,9 @@ Copyable kit for building agentic systems with the **Agent Engineering Blueprint
 |------|------|
 | `install.sh` / `install.ps1` | Installs the kit into a consumer repo’s `.github/agents/` |
 | `Agent Builder.agent.md` | Custom agent prompt (process + short artifact blurbs) |
-| `as-rules/` | Authoritative requirements per artifact (purpose, sections, gates, boundary, bridge) |
-| `templates/` | Fill-in skeletons completed from conversation answers |
-| `BLUEPRINT-KIT.md` | Index of all 17 artifacts → rule + template |
-| `_generate_blueprint_kit.py` | Regenerates `as-rules/` and `templates/` from one data table |
+| `templates/` | One file per artifact: **Normative** requirements + **Instance** fill-in |
+| `BLUEPRINT-KIT.md` | Index of all 17 artifacts → template paths |
+| `_generate_blueprint_kit.py` | Regenerates `templates/` from one data table |
 
 ## Quick start (consumer repo)
 
@@ -50,7 +49,7 @@ git clone --depth 1 https://github.com/raphranadoor/blueprint.git $env:TEMP\blue
 & "$env:TEMP\blueprint\install.ps1" -DestRepoRoot (Get-Location)
 ```
 
-The installer creates `.github/agents/` and copies `Agent Builder.agent.md`, `as-rules/`, `templates/`, and `BLUEPRINT-KIT.md`.
+The installer creates `.github/agents/` and copies `Agent Builder.agent.md`, `templates/`, and `BLUEPRINT-KIT.md`.
 
 ### 2. Invoke Agent Builder
 
@@ -62,7 +61,6 @@ Recommended consumer layout:
 your-repo/
   .github/agents/
     Agent Builder.agent.md
-    as-rules/
     templates/
   artifacts/                 # your versioned filled outputs
 ```

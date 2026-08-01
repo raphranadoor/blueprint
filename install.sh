@@ -12,7 +12,6 @@ DEST_AGENTS="${DEST_ROOT}/.github/agents"
 
 need=(
   "Agent Builder.agent.md"
-  "as-rules"
   "templates"
 )
 
@@ -28,7 +27,6 @@ mkdir -p "${DEST_AGENTS}"
 
 cp -f "${KIT_ROOT}/Agent Builder.agent.md" "${DEST_AGENTS}/"
 rm -rf "${DEST_AGENTS}/as-rules" "${DEST_AGENTS}/templates"
-cp -R "${KIT_ROOT}/as-rules" "${DEST_AGENTS}/as-rules"
 cp -R "${KIT_ROOT}/templates" "${DEST_AGENTS}/templates"
 
 if [[ -f "${KIT_ROOT}/BLUEPRINT-KIT.md" ]]; then
