@@ -65,15 +65,17 @@ your-repo/
   artifacts/                 # your versioned filled outputs
 ```
 
+Clauses, prefixes (`PD`, `PRD`, …), and acceptance gates match the Agent Engineering Blueprint catalogue in the thesis methods chapter.
+
 ## Lifecycle (17 artifacts, 5 stages)
 
-1. **Problem Definition** — Problem Definition → PRD → SRS  
-2. **System Design** — Domain Model → Formal System Specification (TLA+) → Component Architecture  
-3. **Architecture Specification** — Tool Contracts → Memory and Data Model → Execution Graph → Agent Architecture  
-4. **Behavioral Specification and Governance** — Agent Behavior Specification → Escalation/HITL → Governance (Policy-as-Code)  
-5. **Implementation, Deployment, and Validation** — Implementation Plan → Evaluation Plan & Failure Taxonomy → Simulation Scenarios → Deployment Architecture & Observability  
+1. **Problem and requirements** — Problem Definition (PD) → Product Requirements Document (PRD) → System Requirements Specification (SRS)
+2. **Domain and structure** — Domain Model (DM) → Formal System Specification (SPEC) → Component Architecture (CA)
+3. **Tools, memory, and graph** — Tool Contracts (TC) → Memory and Data Model (MDM) → Execution Graph Specification (EG) → Agent Architecture (AA)
+4. **Behavior, handoff, and policy** — Agent Behavior Specification (ABS) → Escalation and HITL Handoff (HITL) → Governance and Safety Policies (GOV)
+5. **Build, simulate, and deploy** — Implementation Plan (IP) → Evaluation (EVAL) → Simulation Scenarios (SIM) → Deployment Architecture and Observability Plan (DEP)
 
-## Regenerate rules/templates
+## Regenerate templates
 
 After editing the artifact table in `_generate_blueprint_kit.py`:
 
